@@ -32,9 +32,9 @@ class Phone(Field):
 
 class Record:
     
-    def __init__(self, name: Name, phones: Phone):
+    def __init__(self, name: Name, phones=None):
         self.name = Name(name)
-        self.phones = []
+        self.phones = phones if phones else []
 
     def add_phone(self, phone_number: str):
         phone = Phone(phone_number)
@@ -44,10 +44,14 @@ class Record:
             print('Phone number is not valid. Must be a 10-digit number')
         
     
-    def revome_phone(self, phone_number: str):
+    def remove_phone(self, phone_number: str):
         phone = Phone(phone_number)
         if phone.validate_phone():
-            self.phones.remove(phone)
+            for p in self.phones:
+                if p.value == phone.value:
+                    self.phones.remove(p)
+                    return
+            print(f"{phone_number} not found")
         else:
             print('Phone number is not valid. Must be a 10-digit number')
     
@@ -56,8 +60,10 @@ class Record:
             old_phone = Phone(old_number)
             new_phone = Phone(new_number)
             if old_phone.validate_phone() and new_phone.validate_phone():
-                self.revome_phone(str(old_phone))
-                self.add_phone(str(new_phone))
+                for index, phone in enumerate(self.phones):
+                    if phone.value == old_phone.value:
+                        self.phones[index] = new_phone
+                        return
             else:
                 raise ValueError
         except ValueError:
@@ -67,7 +73,7 @@ class Record:
         phone = Phone(phone_number)
         if phone.validate_phone():
             for element in self.phones:
-                if element == phone:
+                if element.value == phone.value:
                     return element
             return None
 
@@ -76,16 +82,17 @@ class Record:
 
 class AddressBook(UserDict):
 
-    record_book = {}
-
     def add_record(self, record: Record):
-        self
+        self.data[record.name.value] = record
+    
+    def delete_record(self, name: str):
+        return self.data.pop(name, None)
     
     def find(self, name: str) -> Record:
-        pass
+        return self.data.get(name, None)
     
     def __str__(self):
-        pass
+        return '\n'.join(record.__str__() for record in self.data.values())
     
 
     
