@@ -48,16 +48,15 @@ class Record:
         print(f"{phone_number} not found")
     
     def edit_phone(self, old_number, new_number):
-        try:
             old_phone = Phone(old_number)
             new_phone = Phone(new_number)
+            if not new_phone.validate_phone():
+                raise ValueError(f"The number {new_number} isn't valid")
             for index, phone in enumerate(self.phones):
                 if phone.value == old_phone.value:
                     self.phones[index] = new_phone
                     return
-            raise ValueError
-        except ValueError:
-            print(f"The number {old_number} wasn't found in contacts")
+            raise ValueError(f"The number {old_number} wasn't found in contacts")
 
     def find_phone(self, phone_number: str) -> Phone:
         phone = Phone(phone_number)
@@ -67,6 +66,9 @@ class Record:
         return None
 
 class AddressBook(UserDict):
+
+    def clear_all_records(self):
+        self.data = {}
 
     def add_record(self, record: Record):
         self.data[record.name.value] = record
