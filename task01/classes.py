@@ -9,17 +9,15 @@ class Field:
         return str(self.value)
 
 class Name(Field):
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return str(self.value)
+    pass
 
 class Phone(Field):
 
     def __init__(self, value: str):
         self.value = value
+        if not self.validate_phone():
+            raise ValueError("Invalid phone number")
+        
 
     def validate_phone(self) -> bool:
         if self.value.isnumeric() and (len(self.value) == 10):
@@ -38,47 +36,35 @@ class Record:
 
     def add_phone(self, phone_number: str):
         phone = Phone(phone_number)
-        if phone.validate_phone():
-            self.phones.append(phone)
-        else:
-            print('Phone number is not valid. Must be a 10-digit number')
+        self.phones.append(phone)
         
     
     def remove_phone(self, phone_number: str):
         phone = Phone(phone_number)
-        if phone.validate_phone():
-            for p in self.phones:
-                if p.value == phone.value:
-                    self.phones.remove(p)
-                    return
-            print(f"{phone_number} not found")
-        else:
-            print('Phone number is not valid. Must be a 10-digit number')
+        for p in self.phones:
+            if p.value == phone.value:
+                self.phones.remove(p)
+                return
+        print(f"{phone_number} not found")
     
     def edit_phone(self, old_number, new_number):
         try:
             old_phone = Phone(old_number)
             new_phone = Phone(new_number)
-            if old_phone.validate_phone() and new_phone.validate_phone():
-                for index, phone in enumerate(self.phones):
-                    if phone.value == old_phone.value:
-                        self.phones[index] = new_phone
-                        return
-            else:
-                raise ValueError
+            for index, phone in enumerate(self.phones):
+                if phone.value == old_phone.value:
+                    self.phones[index] = new_phone
+                    return
+            raise ValueError
         except ValueError:
-            print('One of numbers or both are not valid. Must be a 10-digit numbers')
+            print(f"The number {old_number} wasn't found in contacts")
 
     def find_phone(self, phone_number: str) -> Phone:
         phone = Phone(phone_number)
-        if phone.validate_phone():
-            for element in self.phones:
-                if element.value == phone.value:
-                    return element
-            return None
-
-    def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        for element in self.phones:
+            if element.value == phone.value:
+                return element
+        return None
 
 class AddressBook(UserDict):
 
@@ -86,13 +72,13 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
     
     def delete_record(self, name: str):
-        return self.data.pop(name, None)
+        del self.data[name]
     
     def find(self, name: str) -> Record:
         return self.data.get(name, None)
     
     def __str__(self):
-        return '\n'.join(record.__str__() for record in self.data.values())
+        return '\n'.join(str(record) for record in self.data.values())
     
 
     
